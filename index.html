@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+    fetch('https://neodigm.github.io/FED_Programming_Challenge/products.json')
+    .then((response) => response.json())
+    .then((data) => {
+      const optimizedData = data.reduce(assignCat("cat"), {})
+      const categories = document.getElementsByClassName("categories")[0]
+      var catHtml = ""
+      var productListHtml = ""
+      var firstCat = true
+
+      for (const cat in optimizedData) {
+        productList = optimizedData[cat]
+
+        catHtml = catHtml + `
+          <div class="cat ${firstCat ? "active" : ""}" data-cat="${cat}" onClick="setActiveCat(this)" >
+            ${cat}
+          </div>
+        `
+
+        productListHtml =  productListHtml + `
+          <div class="productList ${firstCat ? "active" : ""}" id="cat-${cat}">
+            ${renderProductHtml(productList)}
+          </div>
+        `
+        
+        firstCat = false
+      }
+      
+      const catContent = document.getElementById('catContent')
+      catContent.innerHTML = productListHtml
+      categories.innerHTML = catHtml
+    });
+
+    function setActiveCat(el){
+      //Remove previousuly active category
+      activeCat = document.getElementsByClassName('cat active')
+      if (activeCat.length > 0){
+        for (var i = 0; i < activeCat.length; i++){
+          activeCat.item(i).classList.remove('active')
+        }
+      }
+
+      //hide previously active category product list
+      activeProdList = document.getElementsByClassName('productList active')
+      if (activeProdList.length > 0){
+        for (var i = 0; i < activeProdList.length; i++){
+          activeProdList.item(i).classList.remove('active')
+        }
+      }
+
+      //activate selected category
+      el.classList.add("active")
+
+      //show selected category product list
+      selectedCat = el.getAttribute('data-cat')
+      selectedProdList = document.getElementById("cat-"+selectedCat)
+      selectedProdList.classList.add('active')
+    }
+
+    function renderProductHtml(productList){
+      productHtml = ''
+
+      productList.forEach(product => {
+        productHtml = productHtml + `
+          <div class="product">
+            <h2>${product.product}</h2>
+            <p><b>Price:</b> $${product.price}</p>
+            <p><b>Sale:</b> $${product.sale}</p>
+          </div>
+        `
+      });
+
+      return productHtml
+    }
+
+    function assignCat(cat) {
+      return (data, item) => {
+        const catGroup = (data[item[cat]] || []);
+        catGroup.push(item);
+        data[item[cat]] = catGroup
+        return data
+      }
+    }
+  </script>
+
+  <style>
+    *{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+      margin: 3em;
+      text-align: center;
+    }
+    h1{
+      font-size: 50px;
+    }
+    .categories{
+      background-color: #053B06;
+      justify-content: center;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .categories .cat {
+      color: whitesmoke;
+      vertical-align: middle;
+      /* outline: 1px solid red; */
+      max-width: 500px;
+      margin: 0 .5em;
+      padding: 1em;
+      height: 1.5em;
+      line-height: 1.5em;
+      cursor: pointer;
+    }
+    .categories .cat:hover{
+      color: black;
+      background-color: #18C941;
+    }
+    .categories .cat.active{
+      outline: 2px solid black;
+      color: black;
+      background-color: #18C941;
+    }
+
+    .pageContent{
+      width: 80%;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .productList{
+      margin-top: 2em;
+      display: none;
+    }
+    .productList .product{
+      width: 200px;
+      max-height: 200px;
+      margin: 1em;
+      border-radius: 10px;
+      border: 3px solid #0A2463;
+      background-color: #9CCBE7;
+    }
+    .productList.active{
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+
+  <title>Document</title>
+</head>
+<body>
+  <h1>Category Page</h1>
+  <div class="pageContent">
+    <div class="categories">
+
+    </div>
+    <div id="catContent">
+  
+    </div>
+  </div>
+</body>
+</html>
